@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/miHome" android:title="Home" android:icon="@drawable/ic_home" app:showAsAction="always"/>
+    <item android:id="@+id/miNotifications" android:title="Notifications" android:icon="@drawable/ic_notifications" app:showAsAction="always"/>
+    <item android:id="@+id/miMessages" android:title="Messages" android:icon="@drawable/ic_messages" app:showAsAction="always"/>
+    <item android:id="@+id/miMe" android:title="Me" android:icon="@drawable/ic_person" app:showAsAction="always"/>
+</menu>
