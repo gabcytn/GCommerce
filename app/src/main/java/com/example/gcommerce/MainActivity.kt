@@ -3,34 +3,76 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.credentials.CredentialManager
+import com.google.android.gms.auth.api.Auth.GoogleSignInApi
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.SignInButton
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 
 class MainActivity : AppCompatActivity() {
     private lateinit var tvCreateAccount : TextView
     private lateinit var etLoginUsername : EditText
     private lateinit var etLoginPassword : EditText
     private lateinit var btnSignIn : Button
+    private lateinit var cvGoogle : CardView
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient : GoogleSignInClient
+
+    private lateinit var checkAuth : FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        tvCreateAccount = findViewById(R.id.tvCreateAccount)
-        btnSignIn = findViewById(R.id.btnSignIn)
-
         val sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
-        if (isLoggedIn){
+
+
+        checkAuth = FirebaseAuth.getInstance()
+        val currUser = checkAuth.currentUser
+        if (currUser != null || isLoggedIn ) {
+            editor.putBoolean("isLoggedIn", true)
+            editor.apply()
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
+
+//        if (isLoggedIn){
+//            startActivity(Intent(this, HomeActivity::class.java))
+//            finish()
+//        }
+
+        auth = FirebaseAuth.getInstance()
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        tvCreateAccount = findViewById(R.id.tvCreateAccount)
+        btnSignIn = findViewById(R.id.btnSignIn)
+        cvGoogle = findViewById(R.id.cvGoogle)
+        etLoginUsername = findViewById(R.id.etLoginUsername)
+        etLoginPassword = findViewById(R.id.etLoginPassword)
 
         tvCreateAccount.setOnClickListener {
             Intent(this, RegisterActivity::class.java).also {
@@ -57,7 +99,64 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
             }
         }
+        cvGoogle.setOnClickListener{
+            signInWithGoogle()
+        }
     }
+
+
+    private fun signInWithGoogle() {
+        // Configure Google Sign-In client
+        val intent = googleSignInClient.signInIntent
+        startActivityForResult(intent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                // Handle sign in failure
+                Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                Log.d("MainActivity", task.isSuccessful.toString())
+                if (task.isSuccessful) {
+                    // Sign in success, navigate to HomeActivity
+                    val sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putBoolean("isLoggedIn", true)
+                    editor.apply()
+
+                    Intent(this, HomeActivity::class.java).also {
+                        startActivity(it)
+                    }
+                    etLoginUsername.text.clear()
+                    etLoginPassword.text.clear()
+                    finish()
+
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+
+
+
+
+
 
     private fun onLogin(): Boolean? {
         etLoginUsername = findViewById(R.id.etLoginUsername)
@@ -72,5 +171,9 @@ class MainActivity : AppCompatActivity() {
         val isLoggedIn = dbHandler.onLogin(etLoginUsername.text.toString(), etLoginPassword.text.toString())
 
         return isLoggedIn
+    }
+
+    companion object {
+        private const val RC_SIGN_IN = 9001
     }
 }

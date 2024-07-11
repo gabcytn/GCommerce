@@ -92,58 +92,26 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:text="or sign in with"
-        app:layout_constraintBottom_toTopOf="@id/cvGithub"
+        app:layout_constraintBottom_toTopOf="@id/cvGoogle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSignIn" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cvGithub"
+        android:id="@+id/cvGoogle"
         android:layout_width="75dp"
         android:layout_height="60dp"
         android:layout_marginVertical="10dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         app:layout_constraintBottom_toTopOf="@id/tvNoAccount"
-        app:layout_constraintEnd_toStartOf="@id/cvMain"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvOrSignInWith">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center"
-            android:src="@drawable/github" />
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvMain"
-        android:layout_width="75dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="10dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp"
-        app:layout_constraintStart_toEndOf="@id/cvGithub"
-        app:layout_constraintTop_toTopOf="@id/cvGithub"
-        app:layout_constraintEnd_toStartOf="@id/cvGoogle">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center"
-            android:src="@drawable/facebook" />
-    </androidx.cardview.widget.CardView>
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvGoogle"
-        android:layout_width="75dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="10dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp"
-        app:layout_constraintStart_toEndOf="@id/cvMain"
-        app:layout_constraintTop_toTopOf="@id/cvGithub"
-        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
             android:layout_width="25dp"
@@ -163,7 +131,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cvGithub" />
+        app:layout_constraintTop_toBottomOf="@id/cvGoogle" />
 
     <TextView
         android:id="@+id/tvCreateAccount"
