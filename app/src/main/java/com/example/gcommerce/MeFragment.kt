@@ -3,7 +3,6 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +38,9 @@ class MeFragment(private val context: Context) : Fragment () {
             val sharedPreferences = requireActivity().getSharedPreferences("user_session", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
 
+            val spUserCredential = requireActivity().getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+            val spUserEditor = spUserCredential.edit()
+
             AlertDialog.Builder(context)
                 .setTitle("Logout")
                 .setMessage("Do you want to logout?")
@@ -46,13 +48,17 @@ class MeFragment(private val context: Context) : Fragment () {
 //                    auth.signOut()
                     Firebase.auth.signOut()
                     googleSignInClient.signOut()
+
                     editor.putBoolean("isLoggedIn", false)
                     editor.apply()
+
+                    spUserEditor.remove("display_name").apply()
+                    spUserEditor.remove("email").apply()
+                    spUserEditor.clear().apply()
 
                     startActivity(Intent(context, MainActivity::class.java))
                     requireActivity().finish()
 
-                    Log.d("MainActivity", sharedPreferences.getBoolean("isLoggedIn", false).toString())
                 }.setNegativeButton("No"){w, _ ->
                     w.cancel()
                 }.create()

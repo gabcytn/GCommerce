@@ -3,13 +3,13 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var bottomNav : BottomNavigationView
+    private lateinit var homeFragment : HomeFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -20,7 +20,19 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        val homeFragment = HomeFragment()
+        val spUserCredential = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+        val spDisplayName = spUserCredential.getString("display_name", "")!!
+        val spEmail = spUserCredential.getString("email", "")!!
+
+        val displayName = intent.getStringExtra("display_name")
+        val email = intent.getStringExtra("email")
+
+        homeFragment = if (spDisplayName != "") {
+            HomeFragment(spDisplayName, spEmail)
+        } else {
+            HomeFragment(displayName, email)
+        }
+
         val notificationsFragment = NotificationsFragment()
         val messagesFragment = MessagesFragment()
         val meFragment = MeFragment(this)

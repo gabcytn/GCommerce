@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 import android.widget.Toast
 
 private const val DB_NAME = "projectdb"
@@ -73,5 +72,38 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
 
         return isAccountValid
     }
+
+    fun getDisplayName(un: String): String {
+        var displayName = ""
+        val db = this.readableDatabase
+        val query = "SELECT $COL_FNAME FROM $TABLE_NAME WHERE $COL_USERNAME = '$un';"
+        try {
+            val qResult = db.rawQuery(query, null)
+            qResult.moveToFirst()
+            displayName = qResult.getString(0)
+            qResult.close()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+        }
+
+        return displayName
+    }
+
+    fun getEmail(un: String): String {
+        var email = ""
+        val db = this.readableDatabase
+        val query = "SELECT $COL_EMAIL FROM $TABLE_NAME WHERE $COL_USERNAME = '$un';"
+        try {
+            val qResult = db.rawQuery(query, null)
+            qResult.moveToFirst()
+            email = qResult.getString(0)
+            qResult.close()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+        }
+
+        return email
+    }
+
 
 }

@@ -3,8 +3,6 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -12,18 +10,12 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.credentials.CredentialManager
-import com.google.android.gms.auth.api.Auth.GoogleSignInApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 
 class MainActivity : AppCompatActivity() {
     private lateinit var tvCreateAccount : TextView
@@ -36,10 +28,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var googleSignInClient : GoogleSignInClient
 
     private lateinit var checkAuth : FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        etLoginUsername = findViewById(R.id.etLoginUsername)
+        etLoginPassword = findViewById(R.id.etLoginPassword)
 
         val sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -49,16 +45,44 @@ class MainActivity : AppCompatActivity() {
         checkAuth = FirebaseAuth.getInstance()
         val currUser = checkAuth.currentUser
         if (currUser != null || isLoggedIn ) {
+            val spUserCredentials = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+            val spUserEditor = spUserCredentials.edit()
+            spUserEditor.remove("display_name").apply()
+            spUserEditor.remove("email").apply()
+            if (currUser != null) {
+                val currentUser = checkAuth.currentUser
+                val displayName = currentUser?.displayName.toString()
+                val email = currentUser?.email.toString()
+
+                val intent = Intent(this, HomeActivity::class.java)
+//                spUserEditor.clear().apply()
+                spUserEditor.putString("display_name", displayName)
+                spUserEditor.putString("email", email)
+                spUserEditor.apply()
+
+                startActivity(intent)
+            } else if (isLoggedIn) {
+                val spCustomCredential = getSharedPreferences("custom_credentials", Context.MODE_PRIVATE)
+
+                val displayName = spCustomCredential.getString("display_name", "")
+                val email = spCustomCredential.getString("email", "")
+
+                val intent = Intent(this, HomeActivity::class.java)
+
+//                spUserEditor.clear().apply()
+                spUserEditor.putString("display_name", displayName)
+                spUserEditor.putString("email", email)
+                spUserEditor.apply()
+
+                startActivity(intent)
+            }
+
             editor.putBoolean("isLoggedIn", true)
             editor.apply()
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-        }
 
-//        if (isLoggedIn){
-//            startActivity(Intent(this, HomeActivity::class.java))
-//            finish()
-//        }
+            finish()
+
+        }
 
         auth = FirebaseAuth.getInstance()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -84,14 +108,26 @@ class MainActivity : AppCompatActivity() {
 
         btnSignIn.setOnClickListener {
             val isLoggedIn = onLogin()
-
             if (isLoggedIn == true){
+                val dbHandler = DBHandler(this)
+                val displayName = etLoginUsername.text.toString()
+                val email = dbHandler.getEmail(etLoginUsername.text.toString())
+
+                val spCustomCredential = getSharedPreferences("custom_credentials", Context.MODE_PRIVATE)
+                val spCustomEditor = spCustomCredential.edit()
+
+                spCustomEditor.putString("display_name", displayName)
+                spCustomEditor.putString("email", email)
+                spCustomEditor.apply()
+
                 editor.putBoolean("isLoggedIn", true)
                 editor.apply()
 
-                Intent(this, HomeActivity::class.java).also {
-                    startActivity(it)
-                }
+                val intent = Intent(this, HomeActivity::class.java)
+                intent.putExtra("display_name", displayName)
+                intent.putExtra("email", email)
+                startActivity(intent)
+
                 etLoginUsername.text.clear()
                 etLoginPassword.text.clear()
                 finish()
@@ -130,37 +166,35 @@ class MainActivity : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
-                Log.d("MainActivity", task.isSuccessful.toString())
                 if (task.isSuccessful) {
                     // Sign in success, navigate to HomeActivity
+                    val currentUser = checkAuth.currentUser
+                    val displayName = currentUser?.displayName.toString()
+                    val email = currentUser?.email.toString()
+
                     val sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE)
                     val editor = sharedPreferences.edit()
                     editor.putBoolean("isLoggedIn", true)
                     editor.apply()
 
-                    Intent(this, HomeActivity::class.java).also {
-                        startActivity(it)
-                    }
+                    val intent = Intent(this, HomeActivity::class.java)
+                    intent.putExtra("display_name", displayName)
+                    intent.putExtra("email", email)
+                    startActivity(intent)
+
                     etLoginUsername.text.clear()
                     etLoginPassword.text.clear()
                     finish()
 
                 } else {
-                    // If sign in fails, display a message to the user.
+                    // Sign in failure
                     Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
 
-
-
-
-
-
     private fun onLogin(): Boolean? {
-        etLoginUsername = findViewById(R.id.etLoginUsername)
-        etLoginPassword = findViewById(R.id.etLoginPassword)
 
         if (etLoginUsername.text.isEmpty() || etLoginPassword.text.isEmpty()){
             Toast.makeText(this, "Incomplete fields!", Toast.LENGTH_SHORT).show()
