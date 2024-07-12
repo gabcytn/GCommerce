@@ -111,8 +111,7 @@
             android:id="@+id/svScrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivBanner"
@@ -129,7 +128,7 @@
                             android:fontFamily="@font/poppins_regular"
                             android:text=""
                             android:textColor="@color/black"
-                            android:textSize="21sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@+id/imageView2"
                             app:layout_constraintStart_toStartOf="parent"
@@ -159,7 +158,8 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvMainShop"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            tools:listitem="@layout/main_shop_item"/>
 
 
                 </LinearLayout>

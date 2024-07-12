@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/recycler_item_bg"
+    android:layout_marginVertical="3dp">
+
+    <ImageView
+        android:id="@+id/ivCartItem"
+        android:layout_width="125dp"
+        android:layout_height="125dp"
+        android:src="@drawable/item_4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvCartItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Baki"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvCartItemPrice"
+        app:layout_constraintStart_toEndOf="@+id/ivCartItem"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/tvCartItemPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="P300"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/cvMinusQty"
+        app:layout_constraintStart_toEndOf="@+id/ivCartItem"
+        app:layout_constraintTop_toBottomOf="@+id/tvCartItemName" />
+
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:src="@drawable/fa_xmark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvMinusQty"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCartItemPrice"
+        app:layout_constraintStart_toEndOf="@+id/ivCartItem">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:src="@drawable/fa_minus"
+            tools:layout_editor_absoluteX="186dp"
+            tools:layout_editor_absoluteY="114dp" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tvQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="1"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/cvMinusQty"
+        app:layout_constraintTop_toTopOf="@+id/cvMinusQty" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvPlusQty"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginStart="10dp"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="2dp"
+        app:layout_constraintStart_toEndOf="@id/tvQuantity"
+        app:layout_constraintTop_toTopOf="@+id/tvQuantity">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:src="@drawable/fa_plus"
+            tools:layout_editor_absoluteX="186dp"
+            tools:layout_editor_absoluteY="114dp" />
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

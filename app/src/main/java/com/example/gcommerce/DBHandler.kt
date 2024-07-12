@@ -1,12 +1,16 @@
 package com.example.gcommerce
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import android.widget.Toast
 
 private const val DB_NAME = "projectdb"
+// USER ACCOUNTS TABLE
 private const val TABLE_NAME = "user_accounts"
 private const val COL_ID = "user_id"
 private const val COL_FNAME = "user_firstname"
@@ -14,10 +18,16 @@ private const val COL_LNAME = "user_lastname"
 private const val COL_EMAIL = "user_email"
 private const val COL_USERNAME = "user_username"
 private const val COL_PASSWORD = "user_password"
-
+// ADDED TO CART ITEMS TABLE
+private const val CART_TABLE_NAME = "user_cart"
+private const val COL_CART_ID = "cart_id"
+private const val COL_CART_ITEM = "cart_item"
+private const val COL_CART_BUYER = "cart_buyer"
+private const val COL_CART_ITEM_PRICE = "cart_item_price"
+private const val COL_CART_ITEM_IMAGE = "cart_item_image"
 class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NAME, null, 1){
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTableQuery = "CREATE TABLE $TABLE_NAME (" +
+        val createUserAccountTableQuery = "CREATE TABLE $TABLE_NAME (" +
                 "$COL_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$COL_FNAME VARCHAR (50), " +
                 "$COL_LNAME VARCHAR (50), " +
@@ -25,7 +35,15 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 "$COL_USERNAME VARCHAR(50), " +
                 "$COL_PASSWORD VARCHAR(50));"
 
-        db?.execSQL(createTableQuery)
+        val createCartItemsTableQuery = "CREATE TABLE $CART_TABLE_NAME (" +
+                "$COL_CART_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "$COL_CART_ITEM_IMAGE INTEGER, " +
+                "$COL_CART_ITEM VARCHAR(50), " +
+                "$COL_CART_ITEM_PRICE INTEGER, " +
+                "$COL_CART_BUYER VARCHAR(50));"
+
+        db?.execSQL(createUserAccountTableQuery)
+        db?.execSQL(createCartItemsTableQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -66,8 +84,6 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
             qResult.close()
         } catch (e: Exception) {
             Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
-        } finally {
-            db.close()
         }
 
         return isAccountValid
@@ -103,6 +119,52 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
 
         return email
+    }
+
+    fun insertCartItems(itName: String, itPrice: Int, itBuyer: String, itImage: Int): String {
+        val feedback: String
+        val db = this.writableDatabase
+        val cv = ContentValues()
+
+        cv.put(COL_CART_ITEM, itName)
+        cv.put(COL_CART_ITEM_PRICE, itPrice)
+        cv.put(COL_CART_BUYER, itBuyer)
+        cv.put(COL_CART_ITEM_IMAGE, itImage)
+
+        val result = db.insert(CART_TABLE_NAME, null, cv)
+        if (result == (-1).toLong()){
+            feedback = "Failed"
+        } else {
+            feedback = "Success"
+        }
+
+        return feedback
+    }
+
+    @SuppressLint("Range")
+    fun getCartItems (buyer: String) : MutableList<ShopItem> {
+        val cartItems = mutableListOf<ShopItem>()
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
+        val result: Cursor
+        try {
+            result = db.rawQuery(query, null)
+            result.moveToFirst()
+            do {
+                val itemName = result.getString(result.getColumnIndex(COL_CART_ITEM))
+                val itemPrice = result.getString(result.getColumnIndex(COL_CART_ITEM_PRICE)).toInt()
+                val itemImage = result.getString(result.getColumnIndex(COL_CART_ITEM_IMAGE)).toInt()
+
+                val item = ShopItem(itemImage, itemName, itemPrice, true)
+                cartItems.add(item)
+            } while (result.moveToNext())
+
+            result.close()
+        } catch (e: Exception) {
+            Log.i("MainActivity", e.message.toString())
+        }
+
+        return cartItems
     }
 
 
