@@ -1,5 +1,7 @@
 package com.example.gcommerce
 
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,15 +10,16 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
-class CartRecyclerAdapter(private val cartItemsList: ArrayList<CartItem>) : RecyclerView.Adapter<CartRecyclerAdapter.CartViewHolder> () {
-    class CartViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView){
+class CartRecyclerAdapter(private var cartItemsList: ArrayList<CartItem>, val context: Context, val buyer: String, val activity: CartActivity) : RecyclerView.Adapter<CartRecyclerAdapter.CartViewHolder> () {
+    class CartViewHolder (itemView: View, context: Context, cartItems: ArrayList<CartItem>, buyer: String) : RecyclerView.ViewHolder(itemView){
         val itemImage: ImageView = itemView.findViewById(R.id.ivCartItem)
         val itemName: TextView = itemView.findViewById(R.id.tvCartItemName)
         val itemPrice: TextView = itemView.findViewById(R.id.tvCartItemPrice)
         val itemQty: TextView = itemView.findViewById(R.id.tvQuantity)
 
-        val btnInc = itemView.findViewById<CardView>(R.id.cvPlusQty)
-        val btnDec = itemView.findViewById<CardView>(R.id.cvMinusQty)
+        private val btnInc: CardView = itemView.findViewById(R.id.cvPlusQty)
+        private val btnDec: CardView = itemView.findViewById(R.id.cvMinusQty)
+        val btnRemove: ImageView = itemView.findViewById(R.id.ivDeleteItem)
 
         init {
             btnDec.setOnClickListener {
@@ -36,7 +39,7 @@ class CartRecyclerAdapter(private val cartItemsList: ArrayList<CartItem>) : Recy
         viewType: Int
     ): CartRecyclerAdapter.CartViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.cart_item, parent, false)
-        return CartViewHolder(itemView)
+        return CartViewHolder(itemView, context, cartItemsList, buyer)
     }
 
     override fun onBindViewHolder(holder: CartRecyclerAdapter.CartViewHolder, position: Int) {
@@ -45,9 +48,26 @@ class CartRecyclerAdapter(private val cartItemsList: ArrayList<CartItem>) : Recy
         holder.itemName.text = currentItem.cartItemName
         holder.itemPrice.text = "P${currentItem.cartItemPrice}.00"
         holder.itemQty.text = currentItem.cartItemQty.toString()
+
+        holder.btnRemove.setOnClickListener {
+            val db = DBHandler(context)
+            val currItem = cartItemsList[position]
+            Log.i("MainActivity", "Current item to delete: $currItem")
+            db.deleteCartItem(currItem.cartItemName)
+
+            cartItemsList.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, cartItemsList.size)
+
+            if (cartItemsList.isEmpty()) {
+                activity.updateUIonDelete()
+            }
+
+        }
     }
 
     override fun getItemCount(): Int {
         return cartItemsList.size
     }
+
 }

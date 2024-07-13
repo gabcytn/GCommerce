@@ -3,6 +3,7 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -53,11 +54,13 @@ class MainActivity : AppCompatActivity() {
                 val currentUser = checkAuth.currentUser
                 val displayName = currentUser?.displayName.toString()
                 val email = currentUser?.email.toString()
+                val profilePhoto = currentUser?.photoUrl.toString()
 
                 val intent = Intent(this, HomeActivity::class.java)
 //                spUserEditor.clear().apply()
                 spUserEditor.putString("display_name", displayName)
                 spUserEditor.putString("email", email)
+                spUserEditor.putString("profile_pic", profilePhoto)
                 spUserEditor.apply()
 
                 startActivity(intent)

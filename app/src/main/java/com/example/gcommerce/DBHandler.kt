@@ -51,9 +51,9 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
     }
 
     fun insertData(user: User): String{
-        var feedback = ""
+        val feedback: String
         val db = this.writableDatabase
-        var cv = ContentValues()
+        val cv = ContentValues()
 
         cv.put(COL_FNAME, user.firstName)
         cv.put(COL_LNAME, user.lastName)
@@ -62,10 +62,10 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         cv.put(COL_PASSWORD, user.password)
 
         val result = db.insert(TABLE_NAME, null, cv)
-        if (result == (-1).toLong()){
-            feedback = "Failed"
+        feedback = if (result == (-1).toLong()){
+            "Failed"
         } else {
-            feedback = "Success"
+            "Success"
         }
 
         return feedback
@@ -89,21 +89,21 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return isAccountValid
     }
 
-    fun getDisplayName(un: String): String {
-        var displayName = ""
-        val db = this.readableDatabase
-        val query = "SELECT $COL_FNAME FROM $TABLE_NAME WHERE $COL_USERNAME = '$un';"
-        try {
-            val qResult = db.rawQuery(query, null)
-            qResult.moveToFirst()
-            displayName = qResult.getString(0)
-            qResult.close()
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
-        }
-
-        return displayName
-    }
+//    fun getDisplayName(un: String): String {
+//        var displayName = ""
+//        val db = this.readableDatabase
+//        val query = "SELECT $COL_FNAME FROM $TABLE_NAME WHERE $COL_USERNAME = '$un';"
+//        try {
+//            val qResult = db.rawQuery(query, null)
+//            qResult.moveToFirst()
+//            displayName = qResult.getString(0)
+//            qResult.close()
+//        } catch (e: Exception) {
+//            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+//        }
+//
+//        return displayName
+//    }
 
     fun getEmail(un: String): String {
         var email = ""
@@ -132,10 +132,10 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         cv.put(COL_CART_ITEM_IMAGE, itImage)
 
         val result = db.insert(CART_TABLE_NAME, null, cv)
-        if (result == (-1).toLong()){
-            feedback = "Failed"
+        feedback = if (result == (-1).toLong()){
+            "Failed"
         } else {
-            feedback = "Success"
+            "Success"
         }
 
         return feedback
@@ -162,6 +162,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
             result.close()
         } catch (e: Exception) {
             Log.i("MainActivity", e.message.toString())
+        } finally {
+            db.close()
         }
 
         return cartItems
@@ -185,8 +187,20 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
             result.close()
         } catch (e: Exception) {
             Log.e("MainActivity", e.message.toString())
+        } finally {
+            db.close()
         }
         return isAddedToCart
+    }
+
+    fun deleteCartItem(itemName: String) {
+        try {
+            val db = writableDatabase
+            db.delete(CART_TABLE_NAME,"$COL_CART_ITEM = ?",arrayOf(itemName))
+            db.close()
+        } catch (e: Exception) {
+            Log.e("MainActivity", e.message.toString())
+        }
     }
 
 

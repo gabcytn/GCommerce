@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +14,7 @@ class CartActivity : AppCompatActivity() {
     private lateinit var cartItemsList : ArrayList<CartItem>
     private lateinit var tvEmptyCart : TextView
     private lateinit var btnCheckout : Button
+    private lateinit var cartAdapter : CartRecyclerAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
@@ -27,12 +27,12 @@ class CartActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.rvCart)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.setHasFixedSize(true)
 
         cartItemsList = arrayListOf()
         getCartData(buyer)
 
-        recyclerView.adapter = CartRecyclerAdapter(cartItemsList)
+        cartAdapter = CartRecyclerAdapter(cartItemsList, this, buyer, this)
+        recyclerView.adapter = cartAdapter
 
     }
 
@@ -40,7 +40,7 @@ class CartActivity : AppCompatActivity() {
         val db = DBHandler(this)
         val result = db.getCartItems(buyer)
         if (result.isEmpty()) {
-            emptyCart()
+            tvEmptyCart.text = "Your cart is empty!"
             btnCheckout.visibility = View.GONE
             return
         }
@@ -55,7 +55,9 @@ class CartActivity : AppCompatActivity() {
         }
     }
 
-    private fun emptyCart() {
+    fun updateUIonDelete() {
         tvEmptyCart.text = "Your cart is empty!"
+        btnCheckout.visibility = View.GONE
     }
+
 }
