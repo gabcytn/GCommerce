@@ -29,7 +29,6 @@ class ShopRecyclerAdapter(val shopItems : ArrayList<ShopItem>, val context: Cont
         holder.itemImage.setImageResource(currentItem.itemImage)
         holder.itemName.text = currentItem.itemName
         holder.itemPrice.text = "P${currentItem.itemPrice}.00"
-        holder.isAddedToCart = currentItem.isAddedToCart
 
     }
 
@@ -37,20 +36,19 @@ class ShopRecyclerAdapter(val shopItems : ArrayList<ShopItem>, val context: Cont
         val itemImage : ImageView = itemView.findViewById(R.id.ivItemImage)
         val itemName : TextView = itemView.findViewById(R.id.tvItemName)
         val itemPrice : TextView = itemView.findViewById(R.id.tvItemPrice)
-        var isAddedToCart = false
         val itemBtn = itemView.findViewById<Button>(R.id.btnAddToCart)
 
         init {
             itemBtn.setOnClickListener {
 //                this.isAddedToCart = true
-                val currItem = shopItems[position]
-                if (currItem.isAddedToCart) {
+                val currItem = shopItems[adapterPosition]
+                val dbHandler = DBHandler(context)
+                val isAddedToCart = dbHandler.isAddedToCart(currItem.itemName, buyer)
+
+                if (isAddedToCart) {
                     return@setOnClickListener
                 }
-                currItem.isAddedToCart = true
-                Log.i("MainActivity", shopItems.toString())
 
-                val dbHandler = DBHandler(context)
                 val currItemName = currItem.itemName
                 val currItemPrice = currItem.itemPrice
                 val currItemImage = currItem.itemImage

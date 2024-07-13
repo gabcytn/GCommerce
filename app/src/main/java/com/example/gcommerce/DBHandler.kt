@@ -155,7 +155,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 val itemPrice = result.getString(result.getColumnIndex(COL_CART_ITEM_PRICE)).toInt()
                 val itemImage = result.getString(result.getColumnIndex(COL_CART_ITEM_IMAGE)).toInt()
 
-                val item = ShopItem(itemImage, itemName, itemPrice, true)
+                val item = ShopItem(itemImage, itemName, itemPrice)
                 cartItems.add(item)
             } while (result.moveToNext())
 
@@ -165,6 +165,28 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
 
         return cartItems
+    }
+
+    fun isAddedToCart(itemName: String, itemBuyer: String): Boolean {
+        var isAddedToCart = false
+        val db = readableDatabase
+        val query = "SELECT $COL_CART_ITEM FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$itemBuyer';"
+        try {
+            val result = db.rawQuery(query, null)
+            result.moveToFirst()
+
+            do {
+                val retrievedItem = result.getString(0)
+                if (retrievedItem == itemName) {
+                    isAddedToCart = true
+                    break
+                }
+            } while (result.moveToNext())
+            result.close()
+        } catch (e: Exception) {
+            Log.e("MainActivity", e.message.toString())
+        }
+        return isAddedToCart
     }
 
 

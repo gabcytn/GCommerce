@@ -50,7 +50,7 @@ class HomeFragment (private val displayName: String?, val email: String?) : Frag
         val itemImages = listOf(R.drawable.item_1, R.drawable.item_2, R.drawable.item_3, R.drawable.item_4, R.drawable.item_5, R.drawable.item_6, R.drawable.item_7, R.drawable.item_8, R.drawable.item_9, R.drawable.item_10)
 
         for (i in itemImages.indices) {
-            shopItemsList.add(ShopItem(itemImages[i], itemNames[i], itemPrices[i], false))
+            shopItemsList.add(ShopItem(itemImages[i], itemNames[i], itemPrices[i]))
         }
     }
 
