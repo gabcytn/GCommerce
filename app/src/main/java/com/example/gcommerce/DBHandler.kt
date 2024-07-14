@@ -26,10 +26,14 @@ private const val COL_CART_BUYER = "cart_buyer"
 private const val COL_CART_ITEM_PRICE = "cart_item_price"
 private const val COL_CART_ITEM_IMAGE = "cart_item_image"
 private const val COL_CART_ITEM_QTY = "cart_item_qty"
-// SHOP ITEMS (SHIRTS) TABLE
-//private const val SHIRT_TABLE_NAME = "shop_items"
-//private const val COL_SHIRT_NAME = "shirt_name"
-//private const val COL_SHIRT_PRICE = "shirt_price"
+// PURCHASE HISTORY TABLE
+private const val HISTORY_TABLE_NAME = "user_history"
+private const val COL_HISTORY_IMAGE = "history_img"
+private const val COL_HISTORY_NAME = "history_name"
+private const val COL_HISTORY_PRICE = "history_price"
+private const val COL_HISTORY_QTY = "history_qty"
+private const val COL_HISTORY_BUYER = "history_buyer"
+
 class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NAME, null, 1){
     override fun onCreate(db: SQLiteDatabase?) {
         val createUserAccountTableQuery = "CREATE TABLE $TABLE_NAME (" +
@@ -48,23 +52,17 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 "$COL_CART_BUYER VARCHAR(50), " +
                 "$COL_CART_ITEM_QTY INTEGER);"
 
-//        val createShopItemsTableQuery = "CREATE TABLE $SHIRT_TABLE_NAME (" +
-//                "$COL_SHIRT_NAME VARCHAR (50) PRIMARY KEY, " +
-//                "$COL_SHIRT_PRICE INTEGER);"
+        val createHistoryTableQuery = "CREATE TABLE $HISTORY_TABLE_NAME (" +
+                "$COL_HISTORY_IMAGE INTEGER, " +
+                "$COL_HISTORY_NAME VARCHAR(50), " +
+                "$COL_HISTORY_PRICE INTEGER, " +
+                "$COL_HISTORY_QTY INTEGER, " +
+                "$COL_HISTORY_BUYER VARCHAR(50));"
+
 
         db?.execSQL(createUserAccountTableQuery)
         db?.execSQL(createCartItemsTableQuery)
-//        db?.execSQL(createShopItemsTableQuery)
-
-//        val itemNames = listOf("One piece", "Jujutsu Kaisen", "Naruto", "Baki", "Solo Leveling", "Jojo's", "Black Clover", "Hunter x Hunter", "Vinland Saga", "Death Note")
-//        val itemPrices = listOf(300, 320, 250, 280, 250, 200, 200, 300, 280, 250)
-//
-//        for (i in itemNames.indices) {
-//            val cv = ContentValues()
-//            cv.put(COL_SHIRT_NAME, itemNames[i])
-//            cv.put(COL_SHIRT_PRICE, itemPrices[i])
-//            writableDatabase.insert(SHIRT_TABLE_NAME, null, cv)
-//        }
+        db?.execSQL(createHistoryTableQuery)
 
     }
 
@@ -262,6 +260,75 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         val query = "DELETE FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
 
         db.execSQL(query)
+        db.close()
+    }
+
+    fun onCheckout(buyer: String) {
+        val itemsBought = mutableListOf(listOf<String>())
+        val db = readableDatabase
+        val query = "SELECT * FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
+        try {
+            val result = db.rawQuery(query, null)
+            result.moveToFirst()
+            do {
+                val col_img = result.getString(1)
+                val col_name = result.getString(2)
+                val col_price = result.getString(3)
+                val col_qty = result.getString(5)
+
+                itemsBought.add(listOf(col_img, col_name, col_price, col_qty))
+            } while (result.moveToNext())
+            result.close()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Before insert into history table\n${e.message}")
+        } finally {
+            db.close()
+        }
+
+        Log.i("MainActivity", "ON CHECKOUT\n$itemsBought")
+        insertIntoHistory(itemsBought, buyer)
+    }
+
+    private fun insertIntoHistory(list: MutableList<List<String>>, buyer: String) {
+        val db = writableDatabase
+        val cv = ContentValues()
+        try {
+            for (i in 1..list.lastIndex) {
+                cv.put(COL_HISTORY_IMAGE, list[i][0].toInt())
+                cv.put(COL_HISTORY_NAME, list[i][1])
+                cv.put(COL_HISTORY_PRICE, list[i][2].toInt())
+                cv.put(COL_HISTORY_QTY, list[i][3].toInt())
+                cv.put(COL_HISTORY_BUYER, buyer)
+
+                db.insert(HISTORY_TABLE_NAME, null, cv)
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "On insert into history table\n${e.message}")
+        }
+    }
+
+    fun getHistoryItems(buyer: String): ArrayList<HistoryModel> {
+        val names = arrayListOf<HistoryModel>()
+        val db = readableDatabase
+        val query = "SELECT * FROM $HISTORY_TABLE_NAME WHERE $COL_HISTORY_BUYER = '$buyer';"
+        val result = db.rawQuery(query, null)
+        try {
+            result.moveToFirst()
+            do {
+                val image = result.getString(0)
+                val name = result.getString(1)
+                val price = result.getString(2)
+                val qty = result.getString(3)
+                names.add(HistoryModel(image.toInt(), name, price.toInt(), qty.toInt()))
+            } while (result.moveToNext())
+        } catch (e: Exception) {
+            Log.e("MainActivity", "On select of history items\n${e.message}")
+        } finally {
+            result.close()
+            db.close()
+        }
+
+        return names
     }
 
 

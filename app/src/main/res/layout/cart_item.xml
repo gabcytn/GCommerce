@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="3dp">
+    android:padding="12dp">
 
     <ImageView
         android:id="@+id/ivCartItem"
-        android:layout_width="125dp"
-        android:layout_height="125dp"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
         android:src="@drawable/item_4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,9 +19,10 @@
         android:id="@+id/tvCartItemName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
         android:text="Baki"
         android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tvCartItemPrice"
         app:layout_constraintStart_toEndOf="@+id/ivCartItem"
@@ -33,9 +34,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
+        android:layout_marginStart="7dp"
         android:text="P300"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/cvMinusQty"
         app:layout_constraintStart_toEndOf="@+id/ivCartItem"
         app:layout_constraintTop_toBottomOf="@+id/tvCartItemName" />
@@ -57,6 +59,7 @@
         android:id="@+id/cvMinusQty"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginStart="7dp"
         android:foreground="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"

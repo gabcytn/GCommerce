@@ -37,6 +37,8 @@ class CartActivity : AppCompatActivity() {
             if (db.getCartItems(buyer).size != 0) {
                 Toast.makeText(this, "Checkout complete!", Toast.LENGTH_SHORT).show()
             }
+            // Insert into purchase history table
+            db.onCheckout(buyer)
             db.deleteAll(buyer)
             cartAdapter.onCheckout()
             updateUIonDelete()

@@ -16,9 +16,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
-class MeFragment(private val context: Context) : Fragment () {
+class MeFragment(private val context: Context, private val buyer: String?) : Fragment () {
     private lateinit var auth : FirebaseAuth
     private lateinit var googleSignInClient : GoogleSignInClient
+    private lateinit var btnPurchaseHistory : Button
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,6 +65,14 @@ class MeFragment(private val context: Context) : Fragment () {
                 }.create()
                 .show()
 
+        }
+
+        btnPurchaseHistory = view.findViewById(R.id.btnPurchaseHistory)
+        btnPurchaseHistory.setOnClickListener {
+            val intent = Intent(requireContext(), HistoryActivity::class.java)
+            intent.putExtra("buyer", buyer)
+
+            startActivity(intent)
         }
 
         return view

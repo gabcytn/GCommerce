@@ -15,6 +15,13 @@
         <item name="android:textColor">@color/black</item>
         <item name="colorAccent">@color/primary</item>
     </style>
+
+    <style name="HistoryActivity" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
     
     <style name="CustomMenuTitleText" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textSize">8sp</item>

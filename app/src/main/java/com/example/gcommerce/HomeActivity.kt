@@ -12,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class HomeActivity : AppCompatActivity() {
     private lateinit var bottomNav : BottomNavigationView
     private lateinit var homeFragment : HomeFragment
+    private lateinit var meFragment: MeFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,9 +40,14 @@ class HomeActivity : AppCompatActivity() {
             HomeFragment(displayName, email)
         }
 
+        meFragment = if (spDisplayName != "") {
+            MeFragment(this, spDisplayName)
+        } else {
+            MeFragment(this, displayName)
+        }
+
         val notificationsFragment = NotificationsFragment()
         val messagesFragment = MessagesFragment()
-        val meFragment = MeFragment(this)
 
         setFragment(homeFragment)
 
