@@ -3,12 +3,16 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -16,10 +20,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
-class MeFragment(private val context: Context, private val buyer: String?) : Fragment () {
+class MeFragment(private val context: Context, private val buyer: String?, val profilePhoto: String?) : Fragment () {
     private lateinit var auth : FirebaseAuth
     private lateinit var googleSignInClient : GoogleSignInClient
-    private lateinit var btnPurchaseHistory : Button
+    private lateinit var btnPurchaseHistory : TextView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,6 +79,20 @@ class MeFragment(private val context: Context, private val buyer: String?) : Fra
             startActivity(intent)
         }
 
+        val profileImageView = view.findViewById<ImageView>(R.id.ivProfilePhoto)
+        val profileName = view.findViewById<TextView>(R.id.tvProfileName)
+        if (profilePhoto != null) {
+            Glide.with(requireContext())
+                .load(profilePhoto)
+                .placeholder(R.drawable.mock_profile)
+                .error(R.drawable.img_not_found)
+                .into(profileImageView)
+        } else {
+            profileImageView.setImageResource(R.drawable.mock_profile)
+        }
+
+        Log.i("MainActivity", profilePhoto.toString())
+        profileName.text = buyer
         return view
     }
 }

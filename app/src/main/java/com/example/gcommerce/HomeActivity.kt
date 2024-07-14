@@ -41,9 +41,9 @@ class HomeActivity : AppCompatActivity() {
         }
 
         meFragment = if (spDisplayName != "") {
-            MeFragment(this, spDisplayName)
+            MeFragment(this, spDisplayName, spProfilePhoto)
         } else {
-            MeFragment(this, displayName)
+            MeFragment(this, displayName, spProfilePhoto)
         }
 
         val notificationsFragment = NotificationsFragment()
