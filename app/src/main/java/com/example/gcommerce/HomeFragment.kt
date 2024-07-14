@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class HomeFragment (private val displayName: String?, val email: String?) : Fragment () {
-    private lateinit var tvGreetingText : TextView
     private lateinit var cvAddToCart : CardView
     private lateinit var shopItemsList : ArrayList<ShopItem>
     private lateinit var recyclerView : RecyclerView
@@ -23,10 +22,8 @@ class HomeFragment (private val displayName: String?, val email: String?) : Frag
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        tvGreetingText = view.findViewById(R.id.tvGreetingText)
         cvAddToCart = view.findViewById(R.id.cvShoppingCart)
 
-        tvGreetingText.text = "For ${displayName}"
         cvAddToCart.setOnClickListener {
             val intent = Intent(context, CartActivity::class.java)
             intent.putExtra("buyer_name", displayName)

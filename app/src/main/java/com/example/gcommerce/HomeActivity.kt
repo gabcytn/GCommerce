@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -13,6 +14,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var homeFragment : HomeFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_home)
 
         val sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE)
@@ -53,8 +55,8 @@ class HomeActivity : AppCompatActivity() {
             }
             true
         }
-        bottomNav.getOrCreateBadge(R.id.miMessages).apply {
-            number = 8
+        bottomNav.getOrCreateBadge(R.id.miNotifications).apply {
+            number = 10
             isVisible = true
         }
     }
