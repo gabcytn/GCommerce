@@ -45,7 +45,7 @@ class HomeFragment (private val displayName: String?, val email: String?) : Frag
     }
 
     private fun getUserData() {
-        val itemNames = listOf("One piece", "Jujutsu Kaisen", "Naruto", "Baki", "Solo Leveling", "Jojo's", "Black Clover", "Hunter x Hunter", "Vinland Saga", "Death Note")
+        val itemNames = listOf("One piece", "Jujutsu Kaisen", "Naruto", "Baki", "Solo Leveling", "Jojo", "Black Clover", "Hunter x Hunter", "Vinland Saga", "Death Note")
         val itemPrices = listOf(300, 320, 250, 280, 250, 200, 200, 300, 280, 250)
         val itemImages = listOf(R.drawable.item_1, R.drawable.item_2, R.drawable.item_3, R.drawable.item_4, R.drawable.item_5, R.drawable.item_6, R.drawable.item_7, R.drawable.item_8, R.drawable.item_9, R.drawable.item_10)
 

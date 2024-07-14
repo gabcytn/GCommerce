@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -17,21 +18,10 @@ class CartRecyclerAdapter(private var cartItemsList: ArrayList<CartItem>, val co
         val itemPrice: TextView = itemView.findViewById(R.id.tvCartItemPrice)
         val itemQty: TextView = itemView.findViewById(R.id.tvQuantity)
 
-        private val btnInc: CardView = itemView.findViewById(R.id.cvPlusQty)
-        private val btnDec: CardView = itemView.findViewById(R.id.cvMinusQty)
+        val btnInc: CardView = itemView.findViewById(R.id.cvPlusQty)
+        val btnDec: CardView = itemView.findViewById(R.id.cvMinusQty)
         val btnRemove: ImageView = itemView.findViewById(R.id.ivDeleteItem)
 
-        init {
-            btnDec.setOnClickListener {
-                if (itemQty.text.toString() == "1") {
-                    return@setOnClickListener
-                }
-                itemQty.text = (itemQty.text.toString().toInt() - 1).toString()
-            }
-            btnInc.setOnClickListener {
-                itemQty.text = (itemQty.text.toString().toInt() + 1).toString()
-            }
-        }
     }
 
     override fun onCreateViewHolder(
@@ -52,7 +42,6 @@ class CartRecyclerAdapter(private var cartItemsList: ArrayList<CartItem>, val co
         holder.btnRemove.setOnClickListener {
             val db = DBHandler(context)
             val currItem = cartItemsList[position]
-            Log.i("MainActivity", "Current item to delete: $currItem")
             db.deleteCartItem(currItem.cartItemName)
 
             cartItemsList.removeAt(position)
@@ -63,11 +52,50 @@ class CartRecyclerAdapter(private var cartItemsList: ArrayList<CartItem>, val co
                 activity.updateUIonDelete()
             }
 
+            Toast.makeText(context, "${currItem.cartItemName} removed", Toast.LENGTH_SHORT).show()
+
+            val amt = db.getTotalAmount(buyer)
+            activity.updateTotalAmount(amt)
+
         }
+
+        val db = DBHandler(context)
+        holder.btnDec.setOnClickListener {
+            if (holder.itemQty.text.toString() == "1") {
+                return@setOnClickListener
+            }
+            val newCount = holder.itemQty.text.toString().toInt() - 1
+            holder.itemQty.text = newCount.toString()
+
+            currentItem.cartItemQty -= 1
+
+            // Update database
+            db.updateCartItemQuantity(newCount, currentItem.cartItemName)
+            val amt = db.getTotalAmount(buyer)
+            activity.updateTotalAmount(amt)
+        }
+
+        holder.btnInc.setOnClickListener {
+            val newCount = holder.itemQty.text.toString().toInt() + 1
+            holder.itemQty.text = newCount.toString()
+
+            currentItem.cartItemQty += 1
+
+            // Update database
+            db.updateCartItemQuantity(newCount, currentItem.cartItemName)
+            val amt = db.getTotalAmount(buyer)
+            activity.updateTotalAmount(amt)
+        }
+
     }
 
     override fun getItemCount(): Int {
         return cartItemsList.size
+    }
+
+    fun onCheckout() {
+        cartItemsList.clear()
+        notifyDataSetChanged()
     }
 
 }

@@ -78,6 +78,7 @@
         android:text="SIGN IN"
         android:clickable="true"
         android:background="@drawable/btn_signin_bg"
+        android:backgroundTint="@color/primary"
         android:foreground="?attr/selectableItemBackground"
         app:layout_constraintBottom_toTopOf="@id/tvOrSignInWith"
         app:layout_constraintEnd_toEndOf="parent"

@@ -25,6 +25,11 @@ private const val COL_CART_ITEM = "cart_item"
 private const val COL_CART_BUYER = "cart_buyer"
 private const val COL_CART_ITEM_PRICE = "cart_item_price"
 private const val COL_CART_ITEM_IMAGE = "cart_item_image"
+private const val COL_CART_ITEM_QTY = "cart_item_qty"
+// SHOP ITEMS (SHIRTS) TABLE
+//private const val SHIRT_TABLE_NAME = "shop_items"
+//private const val COL_SHIRT_NAME = "shirt_name"
+//private const val COL_SHIRT_PRICE = "shirt_price"
 class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NAME, null, 1){
     override fun onCreate(db: SQLiteDatabase?) {
         val createUserAccountTableQuery = "CREATE TABLE $TABLE_NAME (" +
@@ -40,10 +45,27 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 "$COL_CART_ITEM_IMAGE INTEGER, " +
                 "$COL_CART_ITEM VARCHAR(50), " +
                 "$COL_CART_ITEM_PRICE INTEGER, " +
-                "$COL_CART_BUYER VARCHAR(50));"
+                "$COL_CART_BUYER VARCHAR(50), " +
+                "$COL_CART_ITEM_QTY INTEGER);"
+
+//        val createShopItemsTableQuery = "CREATE TABLE $SHIRT_TABLE_NAME (" +
+//                "$COL_SHIRT_NAME VARCHAR (50) PRIMARY KEY, " +
+//                "$COL_SHIRT_PRICE INTEGER);"
 
         db?.execSQL(createUserAccountTableQuery)
         db?.execSQL(createCartItemsTableQuery)
+//        db?.execSQL(createShopItemsTableQuery)
+
+//        val itemNames = listOf("One piece", "Jujutsu Kaisen", "Naruto", "Baki", "Solo Leveling", "Jojo's", "Black Clover", "Hunter x Hunter", "Vinland Saga", "Death Note")
+//        val itemPrices = listOf(300, 320, 250, 280, 250, 200, 200, 300, 280, 250)
+//
+//        for (i in itemNames.indices) {
+//            val cv = ContentValues()
+//            cv.put(COL_SHIRT_NAME, itemNames[i])
+//            cv.put(COL_SHIRT_PRICE, itemPrices[i])
+//            writableDatabase.insert(SHIRT_TABLE_NAME, null, cv)
+//        }
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -89,22 +111,6 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return isAccountValid
     }
 
-//    fun getDisplayName(un: String): String {
-//        var displayName = ""
-//        val db = this.readableDatabase
-//        val query = "SELECT $COL_FNAME FROM $TABLE_NAME WHERE $COL_USERNAME = '$un';"
-//        try {
-//            val qResult = db.rawQuery(query, null)
-//            qResult.moveToFirst()
-//            displayName = qResult.getString(0)
-//            qResult.close()
-//        } catch (e: Exception) {
-//            Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
-//        }
-//
-//        return displayName
-//    }
-
     fun getEmail(un: String): String {
         var email = ""
         val db = this.readableDatabase
@@ -120,7 +126,6 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
 
         return email
     }
-
     fun insertCartItems(itName: String, itPrice: Int, itBuyer: String, itImage: Int): String {
         val feedback: String
         val db = this.writableDatabase
@@ -130,6 +135,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         cv.put(COL_CART_ITEM_PRICE, itPrice)
         cv.put(COL_CART_BUYER, itBuyer)
         cv.put(COL_CART_ITEM_IMAGE, itImage)
+        cv.put(COL_CART_ITEM_QTY, 1)
 
         val result = db.insert(CART_TABLE_NAME, null, cv)
         feedback = if (result == (-1).toLong()){
@@ -137,8 +143,39 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         } else {
             "Success"
         }
-
         return feedback
+    }
+    fun updateCartItemQuantity(qty: Int, itemName: String) {
+        val db = writableDatabase
+        val query = "UPDATE $CART_TABLE_NAME SET $COL_CART_ITEM_QTY = ? WHERE $COL_CART_ITEM = ?"
+        try {
+            db.execSQL(query, arrayOf(qty, itemName))
+        } catch (e: Exception) {
+            Log.e("MainActivity", e.message.toString())
+        }
+    }
+
+    fun getTotalAmount(buyer: String): Int {
+        var totalAmt = 0
+        val db = readableDatabase
+        val query = "SELECT * FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
+        val result = db.rawQuery(query, null)
+
+        try {
+            result.moveToFirst()
+            do {
+                val qty = result.getString(result.getColumnIndex(COL_CART_ITEM_QTY)).toInt()
+                val price = result.getString(result.getColumnIndex(COL_CART_ITEM_PRICE)).toInt()
+
+                totalAmt += (qty * price)
+            } while (result.moveToNext())
+        } catch (e: Exception) {
+            Log.e("MainActivity", "DBHandler (getTotalAmount)\n${e.message}")
+        } finally {
+            result.close()
+        }
+
+        return totalAmt
     }
 
     @SuppressLint("Range")
@@ -201,6 +238,30 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         } catch (e: Exception) {
             Log.e("MainActivity", e.message.toString())
         }
+    }
+
+    fun getQuantity(buyer: String, item: String): Int? {
+        var qty: Int? = null
+        try {
+            val db = readableDatabase
+            val query = "SELECT $COL_CART_ITEM_QTY FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer' AND $COL_CART_ITEM = '$item';"
+            val result = db.rawQuery(query, null)
+            result.moveToFirst()
+            qty = result.getString(0).toInt()
+
+            result.close()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "DBHandler getQuantity\n${e.message}")
+        }
+
+        return qty
+    }
+
+    fun deleteAll(buyer: String) {
+        val db = writableDatabase
+        val query = "DELETE FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
+
+        db.execSQL(query)
     }
 
 
