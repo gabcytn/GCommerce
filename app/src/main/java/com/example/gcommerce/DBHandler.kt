@@ -36,6 +36,7 @@ private const val COL_HISTORY_BUYER = "history_buyer"
 
 class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NAME, null, 1){
     override fun onCreate(db: SQLiteDatabase?) {
+        // creates table for user accounts
         val createUserAccountTableQuery = "CREATE TABLE $TABLE_NAME (" +
                 "$COL_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$COL_FNAME VARCHAR (50), " +
@@ -44,6 +45,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 "$COL_USERNAME VARCHAR(50), " +
                 "$COL_PASSWORD VARCHAR(50));"
 
+        // creates table for the shopping cart
         val createCartItemsTableQuery = "CREATE TABLE $CART_TABLE_NAME (" +
                 "$COL_CART_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$COL_CART_ITEM_IMAGE INTEGER, " +
@@ -52,6 +54,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
                 "$COL_CART_BUYER VARCHAR(50), " +
                 "$COL_CART_ITEM_QTY INTEGER);"
 
+        // creates a table for all past transactions
         val createHistoryTableQuery = "CREATE TABLE $HISTORY_TABLE_NAME (" +
                 "$COL_HISTORY_IMAGE INTEGER, " +
                 "$COL_HISTORY_NAME VARCHAR(50), " +
@@ -70,6 +73,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         TODO("Not yet implemented")
     }
 
+    // insert user data after registration for login purposes later on
     fun insertData(user: User): String{
         val feedback: String
         val db = this.writableDatabase
@@ -91,6 +95,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return feedback
     }
 
+    // checks if a certain account exists in the database
+    // is called when logging in
     fun onLogin(username: String, password: String) : Boolean {
         var isAccountValid = false
         val db = this.readableDatabase
@@ -109,6 +115,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return isAccountValid
     }
 
+    // retrieved the email of the current user
     fun getEmail(un: String): String {
         var email = ""
         val db = this.readableDatabase
@@ -124,6 +131,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
 
         return email
     }
+
+    // inserts item into the shopping cart table whenever "add to cart" button is clicked
     fun insertCartItems(itName: String, itPrice: Int, itBuyer: String, itImage: Int): String {
         val feedback: String
         val db = this.writableDatabase
@@ -143,6 +152,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
         return feedback
     }
+
+    // updates the quantity column of shopping cart table when the "+" or "-" button is clicked in the cart
     fun updateCartItemQuantity(qty: Int, itemName: String) {
         val db = writableDatabase
         val query = "UPDATE $CART_TABLE_NAME SET $COL_CART_ITEM_QTY = ? WHERE $COL_CART_ITEM = ?"
@@ -153,6 +164,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
     }
 
+    // calculates the total amount of all the items in the shopping cart table
     fun getTotalAmount(buyer: String): Int {
         var totalAmt = 0
         val db = readableDatabase
@@ -176,6 +188,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return totalAmt
     }
 
+    // gets all the data necessary to display the cart items
+    // is displayed using a recyclerview
     @SuppressLint("Range")
     fun getCartItems (buyer: String) : MutableList<ShopItem> {
         val cartItems = mutableListOf<ShopItem>()
@@ -204,6 +218,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return cartItems
     }
 
+    // checks if an item is already in the cart so that there would be no duplicate
     fun isAddedToCart(itemName: String, itemBuyer: String): Boolean {
         var isAddedToCart = false
         val db = readableDatabase
@@ -228,6 +243,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return isAddedToCart
     }
 
+    // delete an item in the cart when the "x" mark is clicked
     fun deleteCartItem(itemName: String) {
         try {
             val db = writableDatabase
@@ -238,6 +254,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
     }
 
+    // retrieves quantity of each item to be displayed in the cart
+    // for data persistence purposes
     fun getQuantity(buyer: String, item: String): Int? {
         var qty: Int? = null
         try {
@@ -255,6 +273,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         return qty
     }
 
+    // deletes all items in the cart
+    // is called after checkout to clear out the cart
     fun deleteAll(buyer: String) {
         val db = writableDatabase
         val query = "DELETE FROM $CART_TABLE_NAME WHERE $COL_CART_BUYER = '$buyer';"
@@ -263,6 +283,8 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         db.close()
     }
 
+    // selects all the items in the cart
+    // is called before clearing the cart
     fun onCheckout(buyer: String) {
         val itemsBought = mutableListOf(listOf<String>())
         val db = readableDatabase
@@ -285,10 +307,10 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
             db.close()
         }
 
-        Log.i("MainActivity", "ON CHECKOUT\n$itemsBought")
         insertIntoHistory(itemsBought, buyer)
     }
 
+    // inserts all items passed by the onCheckout function into the history table
     private fun insertIntoHistory(list: MutableList<List<String>>, buyer: String) {
         val db = writableDatabase
         val cv = ContentValues()
@@ -307,6 +329,7 @@ class DBHandler(private val context : Context) : SQLiteOpenHelper(context, DB_NA
         }
     }
 
+    // selects all items in the history table to display on the HistoryActivity
     fun getHistoryItems(buyer: String): ArrayList<HistoryModel> {
         val names = arrayListOf<HistoryModel>()
         val db = readableDatabase

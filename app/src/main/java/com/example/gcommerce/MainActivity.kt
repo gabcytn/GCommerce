@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+        // initializes UI components
         etLoginUsername = findViewById(R.id.etLoginUsername)
         etLoginPassword = findViewById(R.id.etLoginPassword)
 
@@ -42,9 +43,10 @@ class MainActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
 
-
         checkAuth = FirebaseAuth.getInstance()
         val currUser = checkAuth.currentUser
+
+        // Checks if a user is already logged in
         if (currUser != null || isLoggedIn ) {
             val spUserCredentials = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
             val spUserEditor = spUserCredentials.edit()
@@ -57,7 +59,6 @@ class MainActivity : AppCompatActivity() {
                 val profilePhoto = currentUser?.photoUrl.toString()
 
                 val intent = Intent(this, HomeActivity::class.java)
-//                spUserEditor.clear().apply()
                 spUserEditor.putString("display_name", displayName)
                 spUserEditor.putString("email", email)
                 spUserEditor.putString("profile_pic", profilePhoto)
@@ -72,7 +73,6 @@ class MainActivity : AppCompatActivity() {
 
                 val intent = Intent(this, HomeActivity::class.java)
 
-//                spUserEditor.clear().apply()
                 spUserEditor.putString("display_name", displayName)
                 spUserEditor.putString("email", email)
                 spUserEditor.apply()
@@ -87,12 +87,14 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        // Configures Google sign-in options
         auth = FirebaseAuth.getInstance()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
+        // Create a GoogleSignInClient with the specified options
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         tvCreateAccount = findViewById(R.id.tvCreateAccount)
@@ -197,6 +199,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // verifies the user's credentials and returns the login status.
     private fun onLogin(): Boolean? {
 
         if (etLoginUsername.text.isEmpty() || etLoginPassword.text.isEmpty()){
