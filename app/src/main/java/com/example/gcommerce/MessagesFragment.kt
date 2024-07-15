@@ -37,8 +37,18 @@ class MessagesFragment : Fragment () {
         val msgProfiles = listOf(R.drawable.msg_1, R.drawable.msg_2, R.drawable.msg_3, R.drawable.msg_4, R.drawable.msg_5, R.drawable.msg_6, R.drawable.msg_7, R.drawable.msg_8, R.drawable.msg_9, R.drawable.msg_10)
         val msgSenders = listOf("Uniqlo", "Nike", "H&M", "Zara", "infinitee", "Penshoppe", "Bench", "Oxygn", "SM Store", "Cotton On")
         val msgTimeSent = listOf("3m", "56m", "2hr", "10hr", "16hr", "23h", "1d", "3d", "6d", "1w")
+        val msgContents = listOf("Reacted ❤ to your message.",
+            "Nike sale is coming!",
+            "Have you seen the latest drops?",
+            "Get a discount",
+            "Received na sir?",
+            "Sent a photo.",
+            "Click our profile for more!",
+            "Sent an attachment.",
+            "Reacted ❤ to your message.",
+            "Thanks for shopping!")
         for (i in msgProfiles.indices) {
-            messagesList.add(MessagesModel(msgProfiles[i], msgSenders[i], "Lorem ipsum", msgTimeSent[i]))
+            messagesList.add(MessagesModel(msgProfiles[i], msgSenders[i], msgContents[i], msgTimeSent[i]))
         }
     }
 

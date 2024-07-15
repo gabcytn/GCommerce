@@ -3,7 +3,6 @@ package com.example.gcommerce
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,6 +12,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var bottomNav : BottomNavigationView
     private lateinit var homeFragment : HomeFragment
     private lateinit var meFragment: MeFragment
+    private lateinit var notifFragment: NotificationsFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,12 +41,17 @@ class HomeActivity : AppCompatActivity() {
         }
 
         meFragment = if (spDisplayName != "") {
-            MeFragment(this, spDisplayName, spProfilePhoto)
+            MeFragment(this, spDisplayName, spProfilePhoto, spEmail)
         } else {
-            MeFragment(this, displayName, spProfilePhoto)
+            MeFragment(this, displayName, spProfilePhoto, email)
         }
 
-        val notificationsFragment = NotificationsFragment()
+        notifFragment = if (spDisplayName != "") {
+            NotificationsFragment(spDisplayName)
+        } else {
+            NotificationsFragment(displayName)
+        }
+
         val messagesFragment = MessagesFragment()
 
         setFragment(homeFragment)
@@ -55,7 +60,7 @@ class HomeActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener {
             when(it.itemId){
                 R.id.miHome -> setFragment(homeFragment)
-                R.id.miNotifications -> setFragment(notificationsFragment)
+                R.id.miNotifications -> setFragment(notifFragment)
                 R.id.miMessages -> setFragment(messagesFragment)
                 R.id.miMe -> setFragment(meFragment)
             }

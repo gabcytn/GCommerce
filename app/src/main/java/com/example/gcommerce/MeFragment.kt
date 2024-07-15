@@ -20,7 +20,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
-class MeFragment(private val context: Context, private val buyer: String?, val profilePhoto: String?) : Fragment () {
+class MeFragment(private val context: Context, private val buyer: String?, val profilePhoto: String?, private val email: String?) : Fragment () {
     private lateinit var auth : FirebaseAuth
     private lateinit var googleSignInClient : GoogleSignInClient
     private lateinit var btnPurchaseHistory : TextView
@@ -91,8 +91,9 @@ class MeFragment(private val context: Context, private val buyer: String?, val p
             profileImageView.setImageResource(R.drawable.mock_profile)
         }
 
-        Log.i("MainActivity", profilePhoto.toString())
         profileName.text = buyer
+        view.findViewById<TextView>(R.id.tvProfileBio).text = "Hi, I'm $buyer, and I love to eat, travel, and shop at GCommerce App!"
+        view.findViewById<TextView>(R.id.tvProfileEmail).text = email
         return view
     }
 }
